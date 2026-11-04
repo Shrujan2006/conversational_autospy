@@ -1,0 +1,7 @@
+Turn,Speaker,Message,Emotion,Confidence,Similarity,Semantic Shift
+1,Person A,Did you finish the assignment?,neutral,0.626,,
+2,Person B,Not yet. I'll do it tonight.,neutral,0.926,0.384,0.616
+3,Person A,You said that yesterday.,neutral,0.857,0.122,0.878
+4,Person B,Why are you always blaming me?,anger,0.774,0.259,0.741
+5,Person A,Because you never take this seriously.,anger,0.635,0.348,0.652
+6,Person B,I am trying my best. Stop criticizing me.,anger,0.946,0.286,0.714
