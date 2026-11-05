@@ -1,3 +1,46 @@
 hi.ipynb
-venv/
 
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE settings
+.idea/
+.vscode/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Hugging Face model cache
+.cache/
+cache/
+models/
+**/models--*/
+**/snapshots/
+**/blobs/
+
+# Generated analysis files
+conversation_analysis.csv
+speaker_summary.csv
+*.log
+*.tmp
+
+# Private datasets
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
