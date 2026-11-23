@@ -1,79 +1,30 @@
+import pandas as pd
 
 def locate_breakdown(df):
-
-    tension_turns = df[
-        df["Conversation State"].isin(
-            ["Tension", "Escalation"]
-        )
-    ]
-
-    escalation_turns = df[
-        df["Conversation State"] == "Escalation"
-    ]
-
-    if tension_turns.empty:
-        breakdown_turn = None
-        breakdown_state = "No deterioration detected"
+    """Locate the first tension and escalation turns without conflating them."""
+    tension = df[df["Conversation State"].isin(["Tension", "Escalation"])]
+    escalation = df[df["Conversation State"] == "Escalation"]
+    first_tension = int(tension.iloc[0]["Turn"]) if not tension.empty else None
+    first_escalation = int(escalation.iloc[0]["Turn"]) if not escalation.empty else None
+    if first_escalation is not None:
+        status = "Escalation"
+    elif first_tension is not None:
+        status = "Tension"
     else:
-        first = tension_turns.iloc[0]
-        breakdown_turn = int(first["Turn"])
-        breakdown_state = first["Conversation State"]
-
-    if escalation_turns.empty:
-        escalation_turn = None
-    else:
-        escalation_turn = int(
-            escalation_turns.iloc[0]["Turn"]
-        )
-
+        status = "No deterioration detected"
     return {
-        "First Tension Turn": breakdown_turn,
-        "First Escalation Turn": escalation_turn,
-        "Breakdown Status": breakdown_state
+        "First Tension Turn": first_tension,
+        "First Escalation Turn": first_escalation,
+        "Breakdown Status": status
     }
 
 
 def generate_explanations(df):
-
-    explanations = []
-
+    """Use the same evidence recorded by the conflict scoring component."""
+    output = []
     for _, row in df.iterrows():
-
-        evidence = []
-
-        if str(row["Emotion"]).lower() in [
-            "anger", "disgust", "sadness"
-        ]:
-            evidence.append(
-                f"Negative emotion: {row['Emotion']}"
-            )
-
-        if row["Dialogue Act"] in [
-            "Accusation", "Complaint",
-            "Challenge", "Disagreement"
-        ]:
-            evidence.append(
-                f"Conflict-related dialogue act: {row['Dialogue Act']}"
-            )
-
-        if row["Emotion Changed"] is True:
-            evidence.append(
-                "Speaker's predicted emotion changed"
-            )
-
-        if row["Conversation State"] == "Escalation":
-            evidence.append(
-                "Combined signals crossed escalation threshold"
-            )
-
-        if not evidence:
-            evidence.append(
-                "No strong conflict indicators identified"
-            )
-
-        explanations.append({
-            "Turn": int(row["Turn"]),
-            "Explanation": "; ".join(evidence)
-        })
-
-    return explanations
+        evidence = row.get("Evidence", "No strong conflict indicators")
+        if pd.isna(evidence) or not str(evidence).strip():
+            evidence = "No strong conflict indicators"
+        output.append({"Turn": int(row["Turn"]), "Explanation": str(evidence)})
+    return output
