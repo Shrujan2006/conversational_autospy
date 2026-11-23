@@ -1,79 +1,49 @@
-# AI-Powered Conversation Analysis and Escalation Detection
+# Conversational Autopsy
 
 ## Overview
-An AI-powered conversation analysis application designed to understand conversational flow, identify individual speakers, classify conversational states, and detect potential tension or escalation during interactions.
+Conversational Autopsy is an experimental, explainable NLP pipeline for analyzing text conversations between identified speakers. It tracks turn order, estimates message-level emotion, assigns lightweight rule-based dialogue acts, summarizes local context, and highlights turns with heuristic tension or escalation signals.
 
-The application supports pasted conversations and uploaded TXT/CSV files.
+It is a research prototype, not a clinical, legal, or definitive conflict detector. Emotion predictions and rule-based signals can be wrong, especially with sarcasm, cultural variation, short messages, and missing context.
 
-## Key Features
-- **Speaker Identification:** Tracks individual speakers throughout a conversation.
-- **Emotion Analysis:** Identifies emotional signals in conversational text.
-- **Dialogue Analysis:** Examines conversational intent and dialogue patterns.
-- **Context Analysis:** Evaluates conversational flow and context.
-- **Conflict Detection:** Identifies potential tension and escalation.
-- **Conversation State Distribution:** Visualizes the distribution of conversational states.
-- **Escalation Timeline:** Displays changes in conversational tension over time.
-- **Explainability:** Provides insights into the analysis results.
-- **Interactive Dashboard:** Streamlit-based interface with separate navigation sections.
+## Implemented components
+- **Input:** pasted text, UTF-8 TXT, or CSV with `Speaker` and `Message` columns.
+- **Emotion classification:** `j-hartmann/emotion-english-distilroberta-base`.
+- **Sentence embeddings:** `sentence-transformers/all-MiniLM-L6-v2`; adjacent-turn semantic shift is descriptive and is not used alone as conflict evidence.
+- **Dialogue acts:** transparent keyword/rule baseline.
+- **Context:** preceding two turns and speaker-switch count.
+- **Conflict indicators:** weighted heuristic using emotion, conflict-oriented dialogue acts, same-speaker emotion change, and recent reciprocal conflict-oriented turns.
+- **Outputs:** turn-level analysis, first tension/escalation localization, speaker summaries, explanations, and Streamlit visualizations.
 
-## Technology Stack
-- Python
-- Streamlit
-- Pandas
-- Plotly
-- Hugging Face Transformers
-- Sentence Transformers
-- Scikit-learn
-- PyTorch
-
-## AI Models
-| Model | Purpose |
-|---|---|
-| `j-hartmann/emotion-english-distilroberta-base` | Emotion classification |
-| `sentence-transformers/all-MiniLM-L6-v2` | Text embeddings and semantic similarity |
-
-## Architecture
-1. Input conversation through text or file upload.
-2. Process and organize speaker messages.
-3. Perform emotion and dialogue analysis.
-4. Analyze context and conversational patterns.
-5. Detect potential conflicts and escalation.
-6. Generate conversation states and analytical results.
-7. Visualize the results through the dashboard.
+## Method limitations
+The conflict score is a manually designed heuristic, not a trained classifier. It must not be presented as validated accuracy. Emotion classification is not equivalent to detecting intent or interpersonal conflict. Dialogue-act rules are language- and phrase-dependent. The current implementation operates on text and does not perform audio transcription, speaker diarization, or psychological diagnosis.
 
 ## Installation
-
 ```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
-cd conversation-analysis
-
-python -m venv venv
+git clone https://github.com/Shrujan2006/conversational_autospy.git
+cd conversational_autospy
+python -m venv .venv
 ```
 
-Activate the environment:
-
-Windows:
-```bash
-venv\Scripts\activate
+Activate the environment (Windows PowerShell):
+```powershell
+.venv\Scripts\Activate.ps1
 ```
 
-Install dependencies:
-
+Install dependencies and launch:
 ```bash
 pip install -r requirements.txt
-```
-
-Run the application:
-
-```bash
 streamlit run app.py
 ```
 
-## Project Status
-Working prototype. Detection results are based on the implemented models and analysis rules and require further validation.
+The first analysis may download pretrained model weights and requires an internet connection. The current model inference configuration uses CPU.
+
+## Run tests
+```bash
+python -m unittest discover -s tests -v
+```
+
+## Research and evaluation
+Report empirical metrics only after evaluating against a documented, appropriately consented and annotated dataset. Record annotation guidelines, annotator agreement, class distribution, train/test separation (if applicable), per-class precision/recall/F1, macro-F1, and confusion matrix. Do not treat the heuristic score as ground-truth labels.
 
 ## Privacy
-Use anonymized conversation data for testing. Do not upload private conversations or sensitive personal information.
-
-## License
-See the LICENSE file.
+Use anonymized data and obtain appropriate consent before processing private conversations. Avoid uploading sensitive personal information.
