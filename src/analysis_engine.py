@@ -3,10 +3,7 @@ import json
 from functools import lru_cache
 
 import pandas as pd
-from transformers import pipeline
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-
+ 
 from src.dialogue_act import detect_dialogue_act
 from src.context_analyzer import analyze_context
 from src.conflict_detector import analyze_conflicts
@@ -19,6 +16,13 @@ SEMANTIC_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 @lru_cache(maxsize=1)
 def load_models():
     """Load the two pretrained NLP models once per process."""
+    try:
+        from transformers import pipeline
+        from sentence_transformers import SentenceTransformer
+    except ImportError as exc:
+        raise RuntimeError(
+            "NLP dependencies are missing. Install requirements.txt before analysis."
+        ) from exc
     emotion_model = pipeline("text-classification", model=EMOTION_MODEL_NAME, device=-1)
     semantic_model = SentenceTransformer(SEMANTIC_MODEL_NAME, device="cpu")
     return emotion_model, semantic_model
@@ -118,6 +122,7 @@ def analyze_conversation(conversation):
 
     # Semantic shift is retained as a descriptive feature only. Since adjacent
     # turns often belong to different speakers, it is not treated as conflict evidence.
+    from sklearn.metrics.pairwise import cosine_similarity
     embeddings = semantic_model.encode(messages)
     shifts = [None]
     for index in range(1, len(embeddings)):
